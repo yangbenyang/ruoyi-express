@@ -172,3 +172,68 @@ create table QRTZ_SIMPROP_TRIGGERS (
 ) engine=innodb comment = '同步机制的行锁表';
 
 commit;
+
+-- ----------------------------
+-- 快递公司信息表
+-- ----------------------------
+DROP TABLE IF EXISTS sys_express_company;
+create table sys_express_company (
+    company_id           bigint(20)      not null auto_increment    comment '快递公司ID',
+    company_name         varchar(50)     not null                    comment '快递公司名称',
+    company_code         varchar(20)     not null                    comment '快递公司编码',
+    status               char(1)         default '0'                 comment '状态（0正常 1停用）',
+    sort_order           int             default 0                   comment '显示顺序',
+    remark               varchar(500)    null                        comment '备注',
+    create_by            varchar(64)     default ''                  comment '创建者',
+    create_time          datetime                                    comment '创建时间',
+    update_by            varchar(64)     default ''                  comment '更新者',
+    update_time          datetime                                    comment '更新时间',
+    primary key (company_id)
+) engine=innodb auto_increment=100 comment = '快递公司信息表';
+
+-- ----------------------------
+-- 初始化-快递公司信息表数据
+-- ----------------------------
+insert into sys_express_company values(1, '顺丰速运', 'SF', '0', 1, '顺丰速运', 'admin', sysdate(), '', null);
+insert into sys_express_company values(2, '圆通速递', 'YTO', '0', 2, '圆通速递', 'admin', sysdate(), '', null);
+insert into sys_express_company values(3, '中通快递', 'ZTO', '0', 3, '中通快递', 'admin', sysdate(), '', null);
+insert into sys_express_company values(4, '申通快递', 'STO', '0', 4, '申通快递', 'admin', sysdate(), '', null);
+insert into sys_express_company values(5, '韵达速递', 'YUNDA', '0', 5, '韵达速递', 'admin', sysdate(), '', null);
+insert into sys_express_company values(6, '百世快递', 'HTKY', '0', 6, '百世快递', 'admin', sysdate(), '', null);
+insert into sys_express_company values(7, '德邦快递', 'DBL', '0', 7, '德邦快递', 'admin', sysdate(), '', null);
+insert into sys_express_company values(8, '京东物流', 'JD', '0', 8, '京东物流', 'admin', sysdate(), '', null);
+insert into sys_express_company values(9, '菜鸟裹裹', 'CAINIAO', '0', 9, '菜鸟裹裹', 'admin', sysdate(), '', null);
+insert into sys_express_company values(10, 'EMS', 'EMS', '0', 10, '中国邮政EMS', 'admin', sysdate(), '', null);
+insert into sys_express_company values(11, '极兔速递', 'J&T', '0', 11, '极兔速递', 'admin', sysdate(), '', null);
+insert into sys_express_company values(12, '其他', 'OTHER', '0', 99, '其他快递公司', 'admin', sysdate(), '', null);
+
+
+ALTER TABLE sys_user ADD COLUMN openid VARCHAR(64) DEFAULT NULL COMMENT '微信OpenID';
+CREATE UNIQUE INDEX idx_openid ON sys_user(openid);
+
+-- 扩展sys_user表user_name字段长度，防止微信openid拼接溢出
+ALTER TABLE sys_user MODIFY COLUMN user_name VARCHAR(64) NOT NULL COMMENT '用户账号';
+
+
+-- 菜单 SQL
+insert into sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+values('快递公司信息', '3', '1', 'company', 'system/company/index', 1, 0, 'C', '0', '0', 'system:company:list', '#', 'admin', sysdate(), '', null, '快递公司信息菜单');
+
+-- 按钮父菜单ID
+SELECT @parentId := LAST_INSERT_ID();
+
+-- 按钮 SQL
+insert into sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+values('快递公司信息查询', @parentId, '1',  '#', '', 1, 0, 'F', '0', '0', 'system:company:query',        '#', 'admin', sysdate(), '', null, '');
+
+insert into sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+values('快递公司信息新增', @parentId, '2',  '#', '', 1, 0, 'F', '0', '0', 'system:company:add',          '#', 'admin', sysdate(), '', null, '');
+
+insert into sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+values('快递公司信息修改', @parentId, '3',  '#', '', 1, 0, 'F', '0', '0', 'system:company:edit',         '#', 'admin', sysdate(), '', null, '');
+
+insert into sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+values('快递公司信息删除', @parentId, '4',  '#', '', 1, 0, 'F', '0', '0', 'system:company:remove',       '#', 'admin', sysdate(), '', null, '');
+
+insert into sys_menu (menu_name, parent_id, order_num, path, component, is_frame, is_cache, menu_type, visible, status, perms, icon, create_by, create_time, update_by, update_time, remark)
+values('快递公司信息导出', @parentId, '5',  '#', '', 1, 0, 'F', '0', '0', 'system:company:export',       '#', 'admin', sysdate(), '', null, '');
